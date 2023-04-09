@@ -111,7 +111,7 @@ function foodChars(){
 function gameEngine(){
     // Part 1: Updating the snake array & Food
     if(isCollide(snakeArr)){
-        // gameOverSound.play();
+        gameOverSound.play();
         // musicSound.pause();
         inputDir =  {x: 0, y: 0}; 
         alert("Game Over. Press any key to play again!");
@@ -129,7 +129,7 @@ function gameEngine(){
     for (let i = 0; i < foods.length; i++) {
         let food = foods[i];
         if (snakeArr[0].y === food.y && snakeArr[0].x === food.x) {
-            // foodSound.play();
+            foodSound.play();
             increaseScore(1);
             snakeArr.push({x: snakeArr[0].x + inputDir.x, y: snakeArr[0].y + inputDir.y, letter: food.letter});
 
