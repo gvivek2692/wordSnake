@@ -73,12 +73,15 @@ function checkForValidWord() {
         let index = word.indexOf(validWord);
 
         if (index !== -1) {
-        snakeArr.splice(index+1, validWord.length);
-        increaseScore(validWord.length)
-        break;
+            snakeArr.splice(index + 1, validWord.length);
+            increaseScore(validWord.length);
+            let validWordsBox = document.getElementById("validWordsBox");
+            validWordsBox.innerHTML +=  "<br>" + validWord;
+            break;
         }
     }
 }
+
 
 
 function checkForConsecutiveLetters() {
@@ -123,6 +126,7 @@ function gameEngine(){
           ];
         // musicSound.play();
         score = 0; 
+        showDifficultyModal();
     }
 
     // If you have eaten the food, increment the score and regenerate the food
@@ -250,5 +254,43 @@ window.addEventListener('keydown', e => {
         }
     }
 });
+
+// Add this function at the end of your JavaScript file
+function selectDifficulty() {
+    const easyBtn = document.getElementById('easy');
+    const mediumBtn = document.getElementById('medium');
+    const hardBtn = document.getElementById('hard');
+
+    easyBtn.addEventListener('click', () => {
+        speed = 4;
+        hideDifficultyModal();
+    });
+
+    mediumBtn.addEventListener('click', () => {
+        speed = 6;
+        hideDifficultyModal();
+    });
+
+    hardBtn.addEventListener('click', () => {
+        speed = 8;
+        hideDifficultyModal();
+    });
+}
+
+function hideDifficultyModal() {
+    const difficultyModal = document.getElementById('difficultyModal');
+    difficultyModal.style.display = 'none';
+}
+
+function showDifficultyModal() {
+    const difficultyModal = document.getElementById('difficultyModal');
+    difficultyModal.style.display = 'flex';
+}
+
+
+// Call the selectDifficulty function after the event listeners at the end of your JavaScript file
+selectDifficulty();
+
+
 
 
