@@ -66,11 +66,27 @@
     border-radius: 12px;
 }
 
-.food{
+.food {
+    position: relative;
     background: linear-gradient(red, purple);
     border: .25vmin solid black;
     border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
+
+.food-score {
+    position: absolute;
+    top: 1px;
+    right: 1px;
+    font-size: 1.5vmin;
+    font-weight: bold;
+    font-family: 'New Tegomin', serif;
+    color: black;
+}
+
+
 
 .head, .snake, .food {
     display: flex;

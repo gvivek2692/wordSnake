@@ -23,7 +23,32 @@ let foods = [
 
   ];
 
+const letterScores = {
+    'a': 1, 'e': 1, 'i': 1, 'o': 1, 'u': 1, 'l': 1, 'n': 1, 'r': 1, 's': 1, 't': 1,
+    'd': 2, 'g': 2,
+    'b': 3, 'c': 3, 'm': 3, 'p': 3,
+    'f': 4, 'h': 4, 'v': 4, 'w': 4, 'y': 4,
+    'k': 5,
+    'j': 8, 'x': 8,
+    'q': 10, 'z': 10
+};
+
+
+
 // Game Functions
+
+function getWordScore(word) {
+    let score = 0;
+    for (let i = 0; i < word.length; i++) {
+        score += letterScores[word[i].toLowerCase()];
+    }
+    return score;
+}
+
+function getLetterScore(letter) {
+    return letterScores[letter.toLowerCase()] || 0;
+}
+
 
 function getRandomLetter() {
     const alphabet = "AEIOU".repeat(5) + "BCDFGHJKLMNPQRSTVWXYZ";
@@ -74,13 +99,16 @@ function checkForValidWord() {
 
         if (index !== -1) {
             snakeArr.splice(index + 1, validWord.length);
-            increaseScore(validWord.length);
+            const wordScore = getWordScore(validWord);
+            increaseScore(0, validWord); // Pass validWord as the second argument
             let validWordsBox = document.getElementById("validWordsBox");
-            validWordsBox.innerHTML +=  "<br>" + validWord;
+            validWordsBox.innerHTML += "<br>" + validWord + " - " + wordScore;
             break;
         }
     }
 }
+
+
 
 
 
@@ -94,16 +122,19 @@ function checkForConsecutiveLetters() {
     }
 }
 
-function increaseScore(increaseBy){
+function increaseScore(increaseBy, word = null){
+    if (word) {
+        increaseBy = getWordScore(word);
+    }
     score += increaseBy;
-        if(score>hiscoreval){
-            hiscoreval = score;
-            localStorage.setItem("hiscore", JSON.stringify(hiscoreval));
-            hiscoreBox.innerHTML = "HiScore: "
-            hiscoreval;
-        }
-        scoreBox.innerHTML = "Score: " + score;
+    if(score>hiscoreval){
+        hiscoreval = score;
+        localStorage.setItem("hiscore", JSON.stringify(hiscoreval));
+        hiscoreBox.innerHTML = "HiScore: " + hiscoreval;
+    }
+    scoreBox.innerHTML = "Score: " + score;
 }
+
   
 
 function foodChars(){
@@ -124,6 +155,8 @@ function gameEngine(){
             foodChars(),
         
           ];
+        let validWordsBox = document.getElementById("validWordsBox");
+        validWordsBox.innerHTML = "Valid Words : ";
         // musicSound.play();
         score = 0; 
         showDifficultyModal();
@@ -196,6 +229,13 @@ function gameEngine(){
         foodElement.classList.add('food');
         foodElement.textContent = food.letter;
         board.appendChild(foodElement);
+
+        // Display the letter score
+        let scoreElement = document.createElement('div');
+        scoreElement.classList.add('food-score');
+        scoreElement.textContent = getLetterScore(food.letter);
+        foodElement.appendChild(scoreElement);
+
       });
       
 }
