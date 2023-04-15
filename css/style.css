@@ -59,7 +59,9 @@
 
 .head{
     /* background: linear-gradient(rgb(240, 124, 124), rgb(228, 228, 129)); */
-    background: rgba(129, 31, 31, 0.747);
+    /* background: rgba(129, 31, 31, 0.747); */
+    background: purple;
+
 
     border: 2px solid rgb(34, 4, 34); 
     transform: scale(1.02);
