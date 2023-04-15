@@ -12,9 +12,11 @@ let speed = 6;
 let score = 0;
 let lastPaintTime = 0;
 let foodMaxThresh = 15
+let isPaused = false;
+
 
 let snakeArr = [
-    {x: 13, y: 15, letter: getRandomLetter()}
+    {x: 13, y: 15, letter: ''}
 ];
 
 let foods = [
@@ -37,6 +39,19 @@ const letterScores = {
 
 // Game Functions
 
+function shuffleSnakeLetters() {
+    let snakeBodyLetters = snakeArr.slice(1).map(part => part.letter);
+    for (let i = snakeBodyLetters.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [snakeBodyLetters[i], snakeBodyLetters[j]] = [snakeBodyLetters[j], snakeBodyLetters[i]];
+    }
+    for (let i = 1; i < snakeArr.length; i++) {
+        snakeArr[i].letter = snakeBodyLetters[i - 1];
+    }
+}
+
+
+
 function getWordScore(word) {
     let score = 0;
     for (let i = 0; i < word.length; i++) {
@@ -51,21 +66,25 @@ function getLetterScore(letter) {
 
 
 function getRandomLetter() {
-    const alphabet = "AEIOU".repeat(5) + "BCDFGHJKLMNPQRSTVWXYZ";
+    const alphabet = "AEIOU".repeat(5) + "#".repeat(3) + "BCDFGHJKLMNPQRSTVWXYZ";
     return alphabet[Math.floor(Math.random() * alphabet.length)];
 }
 
 
 function main(ctime) {
-
     window.requestAnimationFrame(main);
 
-    if((ctime - lastPaintTime)/1000 < 1/speed){
+    if (isPaused) {
+        return;
+    }
+
+    if ((ctime - lastPaintTime) / 1000 < 1 / speed) {
         return;
     }
     lastPaintTime = ctime;
     gameEngine();
 }
+
 
 function isCollide(snake) {
     // If you bump into yourself 
@@ -149,7 +168,7 @@ function gameEngine(){
         // musicSound.pause();
         inputDir =  {x: 0, y: 0}; 
         alert("Game Over. Press any key to play again!");
-        snakeArr = [{x: 13, y: 15, letter: getRandomLetter()}];
+        snakeArr = [{x: 13, y: 15, letter: ''}];
         foods = [
             foodChars(),
             foodChars(),
@@ -168,8 +187,15 @@ function gameEngine(){
         if (snakeArr[0].y === food.y && snakeArr[0].x === food.x) {
             foodSound.play();
             increaseScore(1);
-            snakeArr.push({x: snakeArr[0].x + inputDir.x, y: snakeArr[0].y + inputDir.y, letter: food.letter});
-
+            // Add food to the snake body if it's not a '#'
+            if (food.letter !== '#') {
+                snakeArr.push({x: snakeArr[0].x + inputDir.x, y: snakeArr[0].y + inputDir.y, letter: food.letter});
+            }
+            // Shuffle snake body letters if '#' food is consumed
+            if (food.letter === '#') {
+                shuffleSnakeLetters();
+                updateSnakeLetters();
+            }
             let a = 2;
             let b = 16;
             foods[i] = foodChars();
@@ -293,6 +319,16 @@ window.addEventListener('keydown', e => {
                 break;
         }
     }
+    // Check if the pressed key is the spacebar
+    else if (e.key === ' ') {
+        e.preventDefault(); // Prevent the default action of the spacebar (scrolling)
+        isPaused = !isPaused;
+        if (isPaused) {
+            document.getElementById('pauseBtn').innerText = 'Resume';
+        } else {
+            document.getElementById('pauseBtn').innerText = 'Pause';
+        }
+    }
 });
 
 // Add this function at the end of your JavaScript file
@@ -331,6 +367,14 @@ function showDifficultyModal() {
 // Call the selectDifficulty function after the event listeners at the end of your JavaScript file
 selectDifficulty();
 
+document.getElementById('pauseBtn').addEventListener('click', () => {
+    isPaused = !isPaused;
+    if (isPaused) {
+        document.getElementById('pauseBtn').innerText = 'Resume';
+    } else {
+        document.getElementById('pauseBtn').innerText = 'Pause';
+    }
+});
 
 
 
