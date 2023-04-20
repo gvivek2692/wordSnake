@@ -13,17 +13,16 @@ let score = 0;
 let lastPaintTime = 0;
 let foodMaxThresh = 15
 let isPaused = false;
+let hasChangedDirection = false;
 
 
-let snakeArr = [
-    {x: 13, y: 15, letter: ''}
-];
-
-let foods = [
-    {x: 6, y: 7, letter: getRandomLetter()},
-    {x: 10, y: 10, letter: getRandomLetter()},
-
-  ];
+const letterFrequency = {
+    'a': 8.167, 'b': 1.492, 'c': 2.782, 'd': 4.253, 'e': 12.702,
+    'f': 2.228, 'g': 2.015, 'h': 6.094, 'i': 6.966, 'j': 0.153,
+    'k': 0.772, 'l': 4.025, 'm': 2.406, 'n': 6.749, 'o': 7.507,
+    'p': 1.929, 'q': 0.095, 'r': 5.987, 's': 6.327, 't': 9.056,
+    'u': 2.758, 'v': 0.978, 'w': 2.361, 'x': 0.150, 'y': 1.974, 'z': 0.074, '#': 4
+};
 
 const letterScores = {
     'a': 1, 'e': 1, 'i': 1, 'o': 1, 'u': 1, 'l': 1, 'n': 1, 'r': 1, 's': 1, 't': 1,
@@ -35,6 +34,15 @@ const letterScores = {
     'q': 10, 'z': 10
 };
 
+let snakeArr = [
+    {x: 13, y: 15, letter: ''}
+];
+
+let foods = [
+    {x: 6, y: 7, letter: getRandomLetter()},
+    {x: 10, y: 10, letter: getRandomLetter()},
+
+  ];
 
 
 // Game Functions
@@ -65,10 +73,30 @@ function getLetterScore(letter) {
 }
 
 
+// function getRandomLetter() {
+//     const alphabet = "AEIOU".repeat(5) + "#".repeat(3) + "BCDFGHJKLMNPQRSTVWXYZ";
+//     return alphabet[Math.floor(Math.random() * alphabet.length)];
+// }
 function getRandomLetter() {
-    const alphabet = "AEIOU".repeat(5) + "#".repeat(3) + "BCDFGHJKLMNPQRSTVWXYZ";
-    return alphabet[Math.floor(Math.random() * alphabet.length)];
+    const alphabet = "abcdefghijklmnopqrstuvwxyz#";
+    const probabilities = [];
+
+    // Calculate the cumulative probability for each letter
+    let cumulativeProbability = 0;
+    for (let letter of alphabet) {
+        cumulativeProbability += letterFrequency[letter];
+        probabilities.push(cumulativeProbability);
+    }
+
+    // Generate a random number between 0 and the total cumulative probability (100)
+    const random = Math.random() * 100;
+
+    // Find the index of the first cumulative probability that is greater than the random number
+    const index = probabilities.findIndex(probability => probability > random);
+
+    return alphabet[index].toUpperCase();
 }
+
 
 
 function main(ctime) {
@@ -154,13 +182,38 @@ function increaseScore(increaseBy, word = null){
     scoreBox.innerHTML = "Score: " + score;
 }
 
-  
+function isAvailableLocation(x, y, snake, foods) {
+    // Check if the location is in the snake body
+    for (let part of snake) {
+        if (part.x === x && part.y === y) {
+            return false;
+        }
+    }
 
-function foodChars(){
+    // Check if the location is in the foods array
+    for (let food of foods) {
+        if (food.x === x && food.y === y) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+ 
+function foodChars() {
     let a = 2;
     let b = 16;
-    return {x: Math.round(a + (b - a) * Math.random()), y: Math.round(a + (b - a) * Math.random()), letter: getRandomLetter()}
+    let x, y;
+
+    do {
+        x = Math.round(a + (b - a) * Math.random());
+        y = Math.round(a + (b - a) * Math.random());
+    } while (!isAvailableLocation(x, y, snakeArr, foods));
+
+    return {x: x, y: y, letter: getRandomLetter()};
 }
+
 function gameEngine(){
     // Part 1: Updating the snake array & Food
     if(isCollide(snakeArr)){
@@ -264,6 +317,8 @@ function gameEngine(){
 
       });
       
+    hasChangedDirection = false;
+      
 }
 
 // Main logic starts here
@@ -280,8 +335,12 @@ else{
 
 window.requestAnimationFrame(main);
 window.addEventListener('keydown', e => {
+    if (hasChangedDirection) {
+        return;
+    }
     // Check if the pressed key is an arrow key
     if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+        hasChangedDirection = true;
         // moveSound.play();
         switch (e.key) {
             case 'ArrowUp':
