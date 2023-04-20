@@ -15,6 +15,7 @@ let foodMaxThresh = 15
 let isPaused = false;
 let hasChangedDirection = false;
 
+let dontCheckForWordMode = false;
 
 const letterFrequency = {
     'a': 8.167, 'b': 1.492, 'c': 2.782, 'd': 4.253, 'e': 12.702,
@@ -89,7 +90,7 @@ function getRandomLetter() {
     }
 
     // Generate a random number between 0 and the total cumulative probability (100)
-    const random = Math.random() * 100;
+    const random = Math.random() * 104;
 
     // Find the index of the first cumulative probability that is greater than the random number
     const index = probabilities.findIndex(probability => probability > random);
@@ -137,8 +138,45 @@ function updateSnakeLetters() {
     document.getElementById("snakeLettersBox").innerHTML = "Snake Letters: " + snakeLetters;
 }
 
+function displayMode() {
+    const modeIndicator = document.getElementById("modeIndicator");
+    if (dontCheckForWordMode) {
+        modeIndicator.innerHTML = "Word Check: OFF";
+    } else {
+        modeIndicator.innerHTML = "Word Check: ON";
+    }
+}
+displayMode();
+
+// function checkForValidWord() {
+//     if (dontCheckForWordMode) {
+//         return;
+//     }
+//     let word = snakeArr.slice(1).map(part => part.letter).join("").toLowerCase();
+
+//     for (let i = 0; i < commonWords.length; i++) {
+//         let validWord = commonWords[i];
+//         let index = word.indexOf(validWord);
+
+//         if (index !== -1) {
+//             snakeArr.splice(index + 1, validWord.length);
+//             const wordScore = getWordScore(validWord);
+//             increaseScore(0, validWord); // Pass validWord as the second argument
+//             let validWordsBox = document.getElementById("validWordsBox");
+//             validWordsBox.innerHTML += "<br>" + validWord + " - " + wordScore;
+//             break;
+//         }
+//     }
+// }
+
 function checkForValidWord() {
+    if (dontCheckForWordMode) {
+        return;
+    }
     let word = snakeArr.slice(1).map(part => part.letter).join("").toLowerCase();
+
+    // Sort commonWords array in descending order based on word length
+    commonWords.sort((a, b) => b.length - a.length);
 
     for (let i = 0; i < commonWords.length; i++) {
         let validWord = commonWords[i];
@@ -154,7 +192,6 @@ function checkForValidWord() {
         }
     }
 }
-
 
 
 
@@ -316,7 +353,7 @@ function gameEngine(){
         foodElement.appendChild(scoreElement);
 
       });
-      
+
     hasChangedDirection = false;
       
 }
@@ -334,6 +371,16 @@ else{
 }
 
 window.requestAnimationFrame(main);
+
+
+
+document.addEventListener("keydown", (e) => {
+    if (e.key === "Shift") {
+        dontCheckForWordMode = !dontCheckForWordMode;
+        displayMode();
+    }
+});
+
 window.addEventListener('keydown', e => {
     if (hasChangedDirection) {
         return;
